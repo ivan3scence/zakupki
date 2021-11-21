@@ -13,7 +13,7 @@ record_file = 'z2_new.csv'  # файл с результатами
 pages = 1
 
 def urrll(i):
-    url = 'https://zakupki.gov.ru/epz/dizk/search/results.html?morphology=on&search-filter=%D0%94%D0%B0%D1%82%D0%B5+%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D1%8F&sortBy=UPDATE_DATE&pageNumber=1&sortDirection=false&recordsPerPage=_100&showLotsInfoHidden=false&published=on&ur=on&customerPlace=5277335%2C5277327&customerPlaceCodes=%2C&updateDateFrom=18.11.2021&updateDateTo=18.11.2021'
+    url = 'https://zakupki.gov.ru/epz/dizk/search/results.html?morphology=on&search-filter=%D0%94%D0%B0%D1%82%D0%B5+%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D1%8F&sortBy=UPDATE_DATE&pageNumber=1&sortDirection=false&recordsPerPage=_100&showLotsInfoHidden=false&published=on&ur=on&customerPlace=5277335%2C5277327&customerPlaceCodes=%2C&updateDateFrom=18.11.2021&updateDateTo=22.11.2021'
     return url
 
 def request_url(url):
@@ -186,6 +186,7 @@ def parser_start(soup, base_of_post):
             # if isha > 3:
             #     break
             if text_np in base_of_post:
+                print("Данный поставщик уже присутсвует в базе", text_ur, text_np)
                 continue
             data_item = (text_ur, text_url_kontr, text_nomer, text_pr, text_date_zak_kon, text_date_srok_isp, text_date_razm, text_date_obn, text_zakazchik, text_zakazchik_sokr, text_zakazchik_inn, text_np, text_np_ooo, text_post_inn, text_ap, text_tp, text_mp)
             # print(data_item)
@@ -199,7 +200,7 @@ def return_column_from_excel():
     l = []
     wb = openpyxl.load_workbook(file_location)
     sheet = wb['z2']
-    for rowOfCellObjects in sheet['I1':'I36']:
+    for rowOfCellObjects in sheet['L1':'L999']:
         for cellObj in rowOfCellObjects:
             # print(cellObj.coordinate, cellObj.value)
             v = cellObj.value
