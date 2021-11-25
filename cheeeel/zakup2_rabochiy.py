@@ -13,7 +13,7 @@ record_file = 'z2_new.csv'  # файл с результатами
 pages = 1
 
 def urrll(i):
-    url = 'https://zakupki.gov.ru/epz/dizk/search/results.html?morphology=on&search-filter=%D0%94%D0%B0%D1%82%D0%B5+%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D1%8F&sortBy=UPDATE_DATE&pageNumber=1&sortDirection=false&recordsPerPage=_100&showLotsInfoHidden=false&published=on&ur=on&customerPlace=5277335%2C5277327&customerPlaceCodes=%2C&updateDateFrom=23.11.2021&updateDateTo=24.11.2021'
+    url = 'https://zakupki.gov.ru/epz/dizk/search/results.html?morphology=on&search-filter=%D0%94%D0%B0%D1%82%D0%B5+%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D1%8F&sortBy=UPDATE_DATE&pageNumber=1&sortDirection=false&recordsPerPage=_100&showLotsInfoHidden=false&published=on&ur=on&customerPlace=5277335%2C5277327&customerPlaceCodes=%2C&updateDateFrom=25.11.2021&updateDateTo=26.11.2021'
     return url
 
 def request_url(url):
@@ -27,16 +27,6 @@ def request_url(url):
         return soup
     except Exception as e:
         print(e)
-
-
-def clear(text):
-    """Очистка текста"""
-    text = re.sub(r'\s+', ' ', text)
-    text = re.sub(r' ₽\n', '', text)
-    text = text.lstrip()
-    text = text.rstrip()
-    return text
-
 
 def pr_csv(listik):
     with open(record_file, "a", encoding="utf-8") as file_3:
