@@ -5,15 +5,20 @@ import csv
 import openpyxl
 from requests.api import post
 import pandas as pd
+import datetime
 
 id_region = '5277335'       # id региона                       
 thr = 5                     # кол-во потоков
 record_file = 'z2_new.csv'  # файл с результатами
+to = '.'.join(datetime.date.today().strftime("%d/%m/%Y").split('/'))
+frm = '.'.join((datetime.date.today() - datetime.timedelta(days=3)).strftime("%d/%m/%Y").split('/'))
+
  
 pages = 1
 
 def urrll(i):
-    url = 'https://zakupki.gov.ru/epz/dizk/search/results.html?morphology=on&search-filter=%D0%94%D0%B0%D1%82%D0%B5+%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D1%8F&sortBy=UPDATE_DATE&pageNumber=1&sortDirection=false&recordsPerPage=_100&showLotsInfoHidden=false&published=on&ur=on&customerPlace=5277335%2C5277327&customerPlaceCodes=%2C&updateDateFrom=11.01.2022&updateDateTo=13.01.2022'
+    url = f'https://zakupki.gov.ru/epz/dizk/search/results.html?morphology=on&search-filter=%D0%94%D0%B0%D1%82%D0%B5+%D1%80%D0%B0%D0%B7%D0%BC%D0%B5%D1%89%D0%B5%D0%BD%D0%B8%D1%8F&sortBy=UPDATE_DATE&pageNumber=1&sortDirection=false&recordsPerPage=_100&showLotsInfoHidden=false&published=on&ur=on&customerPlace=5277335%2C5277327&customerPlaceCodes=%2C&updateDateFrom={frm}&updateDateTo={to}'
+    print(url)
     return url
 
 def request_url(url):
@@ -229,6 +234,7 @@ def file_create():
             )
 
 def main():
+    print(f"from {frm}\nto{to}")
     file_create()
     base_of_post = return_column_from_excel()
     print("\n\n", base_of_post, "\n\n")
