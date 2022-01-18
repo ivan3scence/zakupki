@@ -234,7 +234,7 @@ def file_create():
             )
 
 def main():
-    print(f"from {frm}\nto{to}")
+    print(f"from {frm}\nto {to}")
     file_create()
     base_of_post = return_column_from_excel()
     print("\n\n", base_of_post, "\n\n")
