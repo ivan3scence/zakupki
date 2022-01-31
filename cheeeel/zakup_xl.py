@@ -1,18 +1,22 @@
+from hashlib import new
 from bs4 import BeautifulSoup as bs
+from numpy import record
 import requests
 import re
-import csv
+import shutil
 import openpyxl
 from requests.api import post
 import pandas as pd
 import datetime
+from mail import send_email
 
-id_region = '5277335'       # id региона                       
-thr = 5                     # кол-во потоков
-record_file = 'z2_new.csv'  # файл с результатами
-to = '.'.join(datetime.date.today().strftime("%d/%m/%Y").split('/'))
-frm = '.'.join((datetime.date.today() - datetime.timedelta(days=3)).strftime("%d/%m/%Y").split('/'))
-
+id_region = '5277335'                                                                                # id региона
+thr = 5                                                                                              # кол-во потоков
+to = '.'.join(datetime.date.today().strftime("%d/%m/%Y").split('/'))                                 #
+frm = '.'.join((datetime.date.today() - datetime.timedelta(days=3)).strftime("%d/%m/%Y").split('/')) # 
+record_file = f'zakupki_{to.split(".")[0]}_{to.split(".")[1]}_{to.split(".")[2]}.xlsx'               # сегодняшний файл
+base_file = "zakupki_rastorjenie_base copy.xlsx"                                                          # база
+ 
  
 pages = 1
 
@@ -33,19 +37,20 @@ def request_url(url):
     except Exception as e:
         print(e)
 
-def pr_csv(listik):
-    with open(record_file, "a", encoding="utf-8") as file_3:
-        writer = csv.writer(file_3)
-        for data in listik:
-            writer.writerow(data)
+def new_day_xlsx(listik):
+    wb = openpyxl.load_workbook(record_file)
+    sheet = wb["1"]
+    for row in range(len(listik)):
+        for col in range(len(listik[row])):
+            sheet.cell(row=row+2, column=col+1).value = listik[row][col]
+    wb.save(filename=record_file)
+    wb.close()
 
 isha = 0
-
 def parser_start(soup, base_of_post):
     """Парсер данных"""
     listik = []
     isha = 0
-    # block = soupp(soup)
     block = soup.find_all(class_="search-registry-entry-block box-shadow-search-input")   #every zakupka
     print(len(block))
     try:
@@ -176,11 +181,6 @@ def parser_start(soup, base_of_post):
 
             except Exception as ex:
                 1 + 1
-
-            # isha += 1
-            # if isha > 3:
-            #     break
-            #неповторяющиеся поставщики
             flag = 0
             for x in listik:
                 if text_np in x:
@@ -194,48 +194,64 @@ def parser_start(soup, base_of_post):
             listik.append(data_item)
     except Exception as e:
         print(e)
-    pr_csv(listik)
+    if (len(listik) > 0):
+        new_day_xlsx(listik)
 
-file_location = "zakupki_rastorjenie_base.xlsx"
+
 def return_column_from_excel():
     l = []
-    wb = openpyxl.load_workbook(file_location)
+    wb = openpyxl.load_workbook(base_file)
     sheet = wb['1']
     for rowOfCellObjects in sheet['L1':'L999']:
         for cellObj in rowOfCellObjects:
             # print(cellObj.coordinate, cellObj.value)
-            v = cellObj.value
-            l.append(v)
+            # v = cellObj.value
+            l.append(cellObj.value)
     return(l)
 
+head = {
+                    "0":["Ссылка на Решение об одностороннем отказе от исполнения контракта"],
+                    "1":["Ссылка на контракт"],
+                    "2":["Реестровый номер контракта"],
+                   "3": ["Цена контракта"],
+                   "4": ["Заключение контракта"],
+                   "5": ["Срок исполнения"],
+                  "6":  ["Размещен контракт в реестре контрактов"],
+                  "7":  ["Обновлен контракт в реестре контрактов"],
+                   "8": ["Полное наименование заказчика"],
+                   "9": ["Сокращенное наименование заказчика"],
+                   "10": ["ИНН заказчика"],
+                    "11":["Наименование поставщика"],
+                   "12": ["Сокращенное наименование поставщика"],
+                   "13": ["ИНН поставщика"],
+                   "14": ["Адрес поставщика"],
+                   "15": ["Телефон поставщика"],
+                   "16": ["Почта Поставщика"]
+                }
+
 def file_create():
-    with open(record_file, "w", encoding="utf-8") as file_3:
-            writer = csv.writer(file_3)
-            writer.writerow(
-                (
-                    "Ссылка на Решение об одностороннем отказе от исполнения контракта",
-                    "Ссылка на контракт",
-                    "Реестровый номер контракта",
-                    "Цена контракта",
-                    "Заключение контракта",
-                    "Срок исполнения",
-                    "Размещен контракт в реестре контрактов",
-                    "Обновлен контракт в реестре контрактов",
-                    "Полное наименование заказчика",
-                    "Сокращенное наименование заказчика",
-                    "ИНН заказчика",
-                    "Наименование поставщика",
-                    "Сокращенное наименование поставщика",
-                    "ИНН поставщика",
-                    "Адрес поставщика",
-                    "Телефон поставщика",
-                    "Почта Поставщика"
-                )
-            )
+    df = pd.DataFrame(head)
+    df.to_excel(record_file, sheet_name="1", index=False, header=False)
+
+def paste_to_base(base_file):
+    dfs = pd.read_excel(record_file, sheet_name="1")
+    if (len(dfs.index) < 1):
+        return (-1)
+    base = pd.read_excel(base_file, sheet_name="1")
+    flag = pd.DataFrame({'Ссылка на Решение об одностороннем отказе от исполнения контракта':[to]})
+    # startrow = writer.sheets['Sheet1'].max_row
+    dfs = pd.read_excel(record_file, sheet_name="1")
+    # print(dfs.to_dict())
+    res = pd.concat([flag, dfs])
+    res = base.append([flag, dfs])
+    res.to_excel(base_file, sheet_name="1", index=False, header=False)
+    return (1)
 
 def main():
     print(f"from {frm}\nto {to}")
+    print("New file: " + record_file)
     file_create()
+
     base_of_post = return_column_from_excel()
     print("\n\n", base_of_post, "\n\n")
     print ('Начинаю сбор данных, подождите...')
@@ -243,17 +259,25 @@ def main():
     while (pages >= ist):
         arr_url = urrll(ist)
         ist = ist + 1
-        date_array = request_url(arr_url)                 #doing soup
+        date_array = request_url(arr_url)
         parser_start(date_array, base_of_post)
         break
+    if (input(f"Put data to base? ") == "y"):
+        print("putting to base...")
+        chek = paste_to_base(base_file)
+        if (chek == 1
+            and input(f"Can I send {record_file} and move to history/ ?: ") == "y"):
+                send_email(record_file)
+                shutil.move(record_file, f"history/{record_file}")
+        elif (chek == -1):
+            print("No new contracts")
+    else:
+        return
+    
+        
+    
 
 
 if __name__=="__main__":
-    
-    # df = pd.ExcelFile(file_location).parse('1') #you could add index_col=0 if there an index
-    # x=[]
-    # x.append(df['Наименование поставщика'])
-    # print(x)
     main()
-    # print(return_column_from_excel())
     
