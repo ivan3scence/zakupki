@@ -15,7 +15,7 @@ from openpyxl import load_workbook
 
 
 df = pd.read_excel("zakupki_30_01_2022.xlsx", sheet_name="1")
-print(df)
+# print(df)
 with pd.ExcelWriter("zakupki_rastorjenie_base copy.xlsx", mode="a", engine="openpyxl", if_sheet_exists="new") as writer:
     df.to_excel(writer, sheet_name="1")
 
