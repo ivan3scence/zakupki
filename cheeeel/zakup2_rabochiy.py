@@ -196,7 +196,7 @@ def parser_start(soup, base_of_post):
         print(e)
     pr_csv(listik)
 
-file_location = "zakupki_rastorjenie_base.xlsx"
+file_location = "base/zakupki_rastorjenie_base.xlsx"
 def return_column_from_excel():
     l = []
     wb = openpyxl.load_workbook(file_location)
