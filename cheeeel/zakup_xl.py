@@ -273,10 +273,6 @@ def main():
             print("No new contracts")
     else:
         return
-    
-        
-    
-
 
 if __name__=="__main__":
     main()
