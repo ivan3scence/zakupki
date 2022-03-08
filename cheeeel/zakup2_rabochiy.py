@@ -11,8 +11,8 @@ id_region = '5277335'       # id региона
 thr = 5                     # кол-во потоков
 record_file = 'z2_new.csv'  # файл с результатами
 to = '.'.join(datetime.date.today().strftime("%d/%m/%Y").split('/'))
-frm = '.'.join((datetime.date.today() - datetime.timedelta(days=3)).strftime("%d/%m/%Y").split('/'))
-
+frm = '.'.join((datetime.date.today() - datetime.timedelta(days=4)).strftime("%d/%m/%Y").split('/'))
+# frm = "22.02.2022"
  
 pages = 1
 
