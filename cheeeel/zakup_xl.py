@@ -251,7 +251,6 @@ def main():
     print(f"from {frm}\nto {to}")
     print("New file: " + record_file)
     file_create()
-
     base_of_post = return_column_from_excel()
     print("\n\n", base_of_post, "\n\n")
     print ('Начинаю сбор данных, подождите...')
